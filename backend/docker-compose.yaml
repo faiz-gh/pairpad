@@ -1,0 +1,35 @@
+services:
+  # Main Application
+  app:
+    container_name: go_app
+    build: .
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Database
+  db:
+    image: 'postgres:16.1-alpine3.18'
+    container_name: postgres-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    healthcheck:
+      interval: 2s
+      timeout: 5s
+      retries: 3
+      test: [ "CMD-SHELL", "pg_isready" ]
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'passwd'
+      POSTGRES_DB: 'dev'
+    volumes:
+      - data:/var/lib/postgresql/data
+
+volumes:
+  data:

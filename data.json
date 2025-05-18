@@ -1,0 +1,232 @@
+{
+    "items": [
+        {
+            "id": "user-FH6rF4LyxZOT5hYnNk6Qta1X",
+            "account_user_id": "user-FH6rF4LyxZOT5hYnNk6Qta1X__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "hannah.nam@scale.com",
+            "role": "account-admin",
+            "name": "Hannah Nam",
+            "created_time": "2025-04-17T20:31:35.699618Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-GptkC5op63WDmdBT7QGUUZhn",
+            "account_user_id": "user-GptkC5op63WDmdBT7QGUUZhn__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "harithavarri@outlook.com",
+            "role": "standard-user",
+            "name": "Haritha Varri",
+            "created_time": "2025-04-03T11:54:54.900332Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-TSYnebVtFAkbUD4ZeQkejKMl",
+            "account_user_id": "user-TSYnebVtFAkbUD4ZeQkejKMl__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "raj.harsh2001@gmail.com",
+            "role": "standard-user",
+            "name": "Harsh",
+            "created_time": "2025-04-26T08:57:10.836992Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-N05TCo1MdlSf3X42lohH0oiO",
+            "account_user_id": "user-N05TCo1MdlSf3X42lohH0oiO__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "harshmehta.m26@gmail.com",
+            "role": "standard-user",
+            "name": "Harsh Mehta",
+            "created_time": "2025-03-29T15:06:29.321000Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-8mVYODpyOjuG7t0StH0YJVKG",
+            "account_user_id": "user-8mVYODpyOjuG7t0StH0YJVKG__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "hixharsh@gmail.com",
+            "role": "standard-user",
+            "name": "HARSH RAJ",
+            "created_time": "2025-04-26T08:56:48.375739Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-pgCMsx5FSuUmWH7M3J5pkAWu",
+            "account_user_id": "user-pgCMsx5FSuUmWH7M3J5pkAWu__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "harshitamunjal212003@gmail.com",
+            "role": "standard-user",
+            "name": "Harshita Munjal",
+            "created_time": "2025-04-01T02:05:58.188638Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-E8uMAJL6NGPAKxLFDbSsW832",
+            "account_user_id": "user-E8uMAJL6NGPAKxLFDbSsW832__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "hruthikrock536@gmail.com",
+            "role": "standard-user",
+            "name": "Hruthik Hruthik",
+            "created_time": "2025-04-26T08:58:05.015607Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-1rgtReI6mwnE9FYIHEZrMZDn",
+            "account_user_id": "user-1rgtReI6mwnE9FYIHEZrMZDn__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "izhansoudagar706@gmail.com",
+            "role": "standard-user",
+            "name": "Izhan Soudagar",
+            "created_time": "2025-04-26T09:07:05.184333Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-FWxg96uaexEAvxLIekHlqrzS",
+            "account_user_id": "user-FWxg96uaexEAvxLIekHlqrzS__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "jack.bratches@scale.com",
+            "role": "account-admin",
+            "name": "Jack Bratches",
+            "created_time": "2025-04-16T18:19:33.985362Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-4ivOIpxb3ThMVYrFEnVeC8yP",
+            "account_user_id": "user-4ivOIpxb3ThMVYrFEnVeC8yP__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "jaychikhaliya9@gmail.com",
+            "role": "standard-user",
+            "name": "Jay Chikhaliya",
+            "created_time": "2025-04-26T09:27:09.077446Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-jzhpG7KCTBXlz5p4bRBNfdus",
+            "account_user_id": "user-jzhpG7KCTBXlz5p4bRBNfdus__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "jonahsatheesh1@gmail.com",
+            "role": "standard-user",
+            "name": "Jonah Sat",
+            "created_time": "2025-03-30T07:02:30.695123Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-vxcDIk7fRqPqrHKrWKgsWnWr",
+            "account_user_id": "user-vxcDIk7fRqPqrHKrWKgsWnWr__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "kaushalsdump@gmail.com",
+            "role": "standard-user",
+            "name": "Kaush",
+            "created_time": "2025-04-26T10:03:15.211281Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-t9U0WQpDWpJz56iMqMGA1mbO",
+            "account_user_id": "user-t9U0WQpDWpJz56iMqMGA1mbO__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "kaushalchandratre22@gmail.com",
+            "role": "standard-user",
+            "name": "Kaushal C",
+            "created_time": "2025-04-26T09:08:50.071348Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-XAg9iom9nCxmFANZmbui05MJ",
+            "account_user_id": "user-XAg9iom9nCxmFANZmbui05MJ__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "kawalgeet999@gmail.com",
+            "role": "standard-user",
+            "name": "KAWALJEET SINGH",
+            "created_time": "2025-04-26T09:05:53.819978Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-eqgbo1O0gJ5jm7qU6O6TYdfV",
+            "account_user_id": "user-eqgbo1O0gJ5jm7qU6O6TYdfV__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "khushigautam1611@gmail.com",
+            "role": "standard-user",
+            "name": "Khushi Gautam",
+            "created_time": "2025-04-26T10:00:56.999856Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-YkgfQJoQqi1Yn4Y1LFJcWsfM",
+            "account_user_id": "user-YkgfQJoQqi1Yn4Y1LFJcWsfM__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "dongakirankumar2@gmail.com",
+            "role": "standard-user",
+            "name": "Kirankumar  Donga",
+            "created_time": "2025-04-26T09:29:54.982287Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-w3bGnkt1KDILJEoqqaCBkpYM",
+            "account_user_id": "user-w3bGnkt1KDILJEoqqaCBkpYM__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "venkatesh.student4@gmail.com",
+            "role": "standard-user",
+            "name": "Kocherla Venkatesh",
+            "created_time": "2025-04-26T09:01:41.078231Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-pdApHVzrmUYdB3Ivh2rL2xZn",
+            "account_user_id": "user-pdApHVzrmUYdB3Ivh2rL2xZn__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "photos.linisha@gmail.com",
+            "role": "standard-user",
+            "name": "Lini Siri",
+            "created_time": "2025-04-26T09:30:51.654196Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-48QEJD2SrB6BTXlV6G4heiSE",
+            "account_user_id": "user-48QEJD2SrB6BTXlV6G4heiSE__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "linybenny49@gmail.com",
+            "role": "standard-user",
+            "name": "LINY BENNY",
+            "created_time": "2025-04-26T09:01:21.346114Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-zwB5gbmD6nz6wkhlCj7EdlvO",
+            "account_user_id": "user-zwB5gbmD6nz6wkhlCj7EdlvO__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "lloda2191@gmail.com",
+            "role": "standard-user",
+            "name": "loda lassan",
+            "created_time": "2025-04-03T11:26:49.184013Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-3ilfrATF51VAvRh9kPUiaMpp",
+            "account_user_id": "user-3ilfrATF51VAvRh9kPUiaMpp__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "manan22102003@gmail.com",
+            "role": "standard-user",
+            "name": "Manan Patel",
+            "created_time": "2025-04-26T11:45:27.024610Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-sJyvmF7vo1V83x7VdbeBFduk",
+            "account_user_id": "user-sJyvmF7vo1V83x7VdbeBFduk__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "maneeshsinghrawat423@gmail.com",
+            "role": "standard-user",
+            "name": "Maneesh Singh Rawat",
+            "created_time": "2025-04-26T09:44:27.629774Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-SJGgn3NoDuHYLEZhwUhNeiwf",
+            "account_user_id": "user-SJGgn3NoDuHYLEZhwUhNeiwf__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "manoharmamidi2001@gmail.com",
+            "role": "standard-user",
+            "name": "Manohar Mamidi",
+            "created_time": "2025-04-26T09:01:26.294455Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-oXRshEN3awOrAmMXglgO4pcA",
+            "account_user_id": "user-oXRshEN3awOrAmMXglgO4pcA__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "mahimanoj083@gmail.com",
+            "role": "standard-user",
+            "name": "Manoj Mahi",
+            "created_time": "2025-04-26T12:09:24.385873Z",
+            "is_scim_managed": false
+        },
+        {
+            "id": "user-N0N2h5hoWCn2DBbs1rMsb2FC",
+            "account_user_id": "user-N0N2h5hoWCn2DBbs1rMsb2FC__f1225013-9ff7-4167-b8cb-1b33f5bc117e",
+            "email": "mgarg0516@gmail.com",
+            "role": "standard-user",
+            "name": "Mayank Garg",
+            "created_time": "2025-03-29T11:06:45.136692Z",
+            "is_scim_managed": false
+        }
+    ],
+    "total": 130,
+    "limit": 25,
+    "offset": 50
+}
