@@ -1,0 +1,60 @@
+name: pairpad
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pairpad}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pairpad}
+      POSTGRES_DB: ${POSTGRES_DB:-pairpad}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Loopback only: lets `go run ./cmd/server` on the host use this database.
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  server:
+    build: ../server
+    image: pairpad-server
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-pairpad}:${POSTGRES_PASSWORD:-pairpad}@postgres:5432/${POSTGRES_DB:-pairpad}?sslmode=disable
+      PORT: "8080"
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-localhost}
+      FLUSH_INTERVAL: ${FLUSH_INTERVAL:-500ms}
+      FLUSH_MAX_BATCH: ${FLUSH_MAX_BATCH:-50}
+      SHUTDOWN_TIMEOUT: ${SHUTDOWN_TIMEOUT:-10s}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Longer than SHUTDOWN_TIMEOUT so the final flush isn't cut off by SIGKILL.
+    stop_grace_period: 15s
+
+  caddy:
+    build: ../web
+    image: pairpad-web
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-http://localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - server
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

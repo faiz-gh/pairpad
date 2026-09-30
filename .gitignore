@@ -1,0 +1,9 @@
+.agents
+.claude
+deploy/.env
+node_modules/
+web/build/
+web/.svelte-kit/
+.DS_Store
+CLAUDE.md
+skills-lock.json
