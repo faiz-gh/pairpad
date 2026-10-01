@@ -10,12 +10,35 @@ import (
 // ErrClosed is returned by Join after the manager has been closed.
 var ErrClosed = errors.New("hub: manager closed")
 
+// Defaults for unset Options fields.
+const (
+	DefaultHistoryRefreshMin = 1000
+	DefaultMaxPeers          = 25
+	DefaultMaxHistoryBytes   = 8 << 20
+)
+
+// Options tunes hub behaviour.
+type Options struct {
+	// HistoryRefreshMin is the in-memory history length at which a hub first
+	// reloads its log from the database to pick up compacted snapshots.
+	HistoryRefreshMin int
+	// MaxPeers is how many peers a room admits; further joins get
+	// ErrRoomFull.
+	MaxPeers int
+	// MaxHistoryBytes caps the total size of a room's in-memory update log,
+	// as a server-side backstop for the client's document size limit. The
+	// server can't measure a Yjs document without decoding it, so it bounds
+	// the log instead.
+	MaxHistoryBytes int
+}
+
 // Manager owns the set of running hubs, creating one on a room's first join
 // and forgetting it once it stops (when its last peer leaves).
 type Manager struct {
 	loader  Loader
 	persist Persister
 	log     *slog.Logger
+	opts    Options
 
 	// ctx bounds hub startup work (flush + history load); cancelled on Close.
 	ctx    context.Context
@@ -28,12 +51,22 @@ type Manager struct {
 }
 
 // NewManager returns an empty manager.
-func NewManager(loader Loader, persist Persister, log *slog.Logger) *Manager {
+func NewManager(loader Loader, persist Persister, log *slog.Logger, opts Options) *Manager {
+	if opts.HistoryRefreshMin <= 0 {
+		opts.HistoryRefreshMin = DefaultHistoryRefreshMin
+	}
+	if opts.MaxPeers <= 0 {
+		opts.MaxPeers = DefaultMaxPeers
+	}
+	if opts.MaxHistoryBytes <= 0 {
+		opts.MaxHistoryBytes = DefaultMaxHistoryBytes
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
 		loader:  loader,
 		persist: persist,
 		log:     log,
+		opts:    opts,
 		ctx:     ctx,
 		cancel:  cancel,
 		hubs:    make(map[string]*Hub),
@@ -41,23 +74,23 @@ func NewManager(loader Loader, persist Persister, log *slog.Logger) *Manager {
 }
 
 // Join adds c to roomID's hub, starting the hub if needed, and returns the
-// hub plus the history c must replay before any live frames. The caller must
+// hub plus the snapshot c must replay before any live frames. The caller must
 // have verified that the room exists.
-func (m *Manager) Join(ctx context.Context, roomID string, c *Client) (*Hub, [][]byte, error) {
+func (m *Manager) Join(ctx context.Context, roomID string, c *Client) (*Hub, Snapshot, error) {
 	for {
 		h, err := m.getOrStart(roomID)
 		if err != nil {
-			return nil, nil, err
+			return nil, Snapshot{}, err
 		}
-		history, ok, err := h.tryJoin(ctx, c)
+		snap, ok, err := h.tryJoin(ctx, c) // err may be ErrRoomFull
 		if err != nil {
-			return nil, nil, err
+			return nil, Snapshot{}, err
 		}
 		if ok {
-			return h, history, nil
+			return h, snap, nil
 		}
 		if h.err != nil {
-			return nil, nil, h.err
+			return nil, Snapshot{}, h.err
 		}
 		// The hub emptied and stopped between lookup and join; it has
 		// already removed itself from the map, so retrying starts a new one.
@@ -73,12 +106,13 @@ func (m *Manager) getOrStart(roomID string) (*Hub, error) {
 	if h, ok := m.hubs[roomID]; ok {
 		return h, nil
 	}
-	h := newHub(roomID, m.loader, m.persist, m.log, m.forget)
+	h := newHub(roomID, m.loader, m.persist, m.log, m.opts, m.forget)
 	m.hubs[roomID] = h
 	m.wg.Add(1)
 	go func() {
 		defer m.wg.Done()
 		h.run(m.ctx)
+		h.bg.Wait()
 	}()
 	return h, nil
 }
@@ -90,6 +124,18 @@ func (m *Manager) forget(h *Hub) {
 	if m.hubs[h.id] == h {
 		delete(m.hubs, h.id)
 	}
+}
+
+// ActiveRooms returns the IDs of rooms that currently have a running hub,
+// i.e. connected peers. Room expiry never deletes these.
+func (m *Manager) ActiveRooms() []string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	ids := make([]string, 0, len(m.hubs))
+	for id := range m.hubs {
+		ids = append(ids, id)
+	}
+	return ids
 }
 
 // Active reports how many hubs are running.

@@ -20,6 +20,9 @@
 		header /index.html Cache-Control "no-cache"
 
 		try_files {path} /index.html
-		file_server
+		# Serve the .br/.gz files the build already produced.
+		file_server {
+			precompressed br gzip
+		}
 	}
 }

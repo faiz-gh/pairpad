@@ -1,0 +1,4 @@
+node_modules
+Dockerfile
+.dockerignore
+src/**/*.test.ts

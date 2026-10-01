@@ -18,16 +18,20 @@ const (
 )
 
 // Serve runs a peer for roomID over conn until either side disconnects. It
-// replays history, sends SYNCED, then relays live updates both ways.
+// replays history, sends SYNCED and the other peers' presence, then relays
+// live frames both ways.
 func (m *Manager) Serve(ctx context.Context, conn *websocket.Conn, roomID string) {
 	defer conn.CloseNow() //nolint:errcheck
 
 	c := NewClient()
-	h, history, err := m.Join(ctx, roomID, c)
+	h, snap, err := m.Join(ctx, roomID, c)
 	if err != nil {
-		if errors.Is(err, ErrClosed) {
+		switch {
+		case errors.Is(err, ErrClosed):
 			conn.Close(websocket.StatusGoingAway, "server shutting down") //nolint:errcheck
-		} else {
+		case errors.Is(err, ErrRoomFull):
+			conn.Close(StatusRoomFull, "room full") //nolint:errcheck
+		default:
 			m.log.Error("join failed", "room", roomID, "err", err)
 			conn.Close(websocket.StatusInternalError, "join failed") //nolint:errcheck
 		}
@@ -41,7 +45,7 @@ func (m *Manager) Serve(ctx context.Context, conn *websocket.Conn, roomID string
 
 	go func() {
 		defer cancel()
-		if err := writePump(ctx, conn, c, history); err != nil && ctx.Err() == nil {
+		if err := writePump(ctx, conn, c, snap); err != nil && ctx.Err() == nil {
 			m.log.Debug("write pump ended", "room", roomID, "err", err)
 		}
 	}()
@@ -55,7 +59,7 @@ func (m *Manager) Serve(ctx context.Context, conn *websocket.Conn, roomID string
 			continue
 		}
 		switch msg[0] {
-		case MsgUpdate:
+		case MsgUpdate, MsgAwareness:
 			h.Broadcast(c, msg)
 		default:
 			// Unknown types are ignored for forward compatibility.
@@ -63,7 +67,7 @@ func (m *Manager) Serve(ctx context.Context, conn *websocket.Conn, roomID string
 	}
 }
 
-func writePump(ctx context.Context, conn *websocket.Conn, c *Client, history [][]byte) error {
+func writePump(ctx context.Context, conn *websocket.Conn, c *Client, snap Snapshot) error {
 	write := func(frame []byte) error {
 		wctx, cancel := context.WithTimeout(ctx, writeTimeout)
 		defer cancel()
@@ -71,7 +75,7 @@ func writePump(ctx context.Context, conn *websocket.Conn, c *Client, history [][
 	}
 
 	buf := make([]byte, 0, 1024)
-	for _, u := range history {
+	for _, u := range snap.History {
 		buf = append(append(buf[:0], MsgUpdate), u...)
 		if err := write(buf); err != nil {
 			return err
@@ -80,6 +84,11 @@ func writePump(ctx context.Context, conn *websocket.Conn, c *Client, history [][
 	if err := write([]byte{MsgSynced}); err != nil {
 		return err
 	}
+	for _, f := range snap.Presence {
+		if err := write(f); err != nil {
+			return err
+		}
+	}
 
 	ticker := time.NewTicker(pingInterval)
 	defer ticker.Stop()
@@ -87,7 +96,7 @@ func writePump(ctx context.Context, conn *websocket.Conn, c *Client, history [][
 		select {
 		case frame, ok := <-c.send:
 			if !ok {
-				return conn.Close(websocket.StatusGoingAway, "disconnected by server")
+				return conn.Close(c.closeCode, c.closeReason)
 			}
 			if err := write(frame); err != nil {
 				return err

@@ -17,6 +17,7 @@ import (
 	"github.com/faiz-gh/pairpad/server/internal/api"
 	"github.com/faiz-gh/pairpad/server/internal/config"
 	"github.com/faiz-gh/pairpad/server/internal/hub"
+	"github.com/faiz-gh/pairpad/server/internal/ratelimit"
 	"github.com/faiz-gh/pairpad/server/internal/store"
 	"github.com/faiz-gh/pairpad/server/migrations"
 )
@@ -54,14 +55,42 @@ func run() error {
 		return fmt.Errorf("migrate: %w", err)
 	}
 
-	st := store.New(pool)
+	st := store.New(pool, log)
 	batcher := store.NewBatcher(st, cfg.FlushInterval, cfg.FlushMaxBatch, log)
-	hubs := hub.NewManager(st, batcher, log)
+	hubs := hub.NewManager(st, batcher, log, hub.Options{
+		HistoryRefreshMin: cfg.HistoryRefreshMin,
+		MaxPeers:          cfg.MaxPeers,
+		MaxHistoryBytes:   cfg.MaxHistoryBytes,
+	})
+	trusted := cfg.TrustedProxies
+	if trusted == nil {
+		trusted = api.DefaultTrustedProxies
+	}
 	srv := &http.Server{
-		Addr:              ":" + cfg.Port,
-		Handler:           api.New(st, hubs, cfg.AllowedOrigins, log).Routes(),
+		Addr: ":" + cfg.Port,
+		Handler: api.New(st, hubs, api.Config{
+			AllowedOrigins: cfg.AllowedOrigins,
+			TrustedProxies: trusted,
+			CreateLimiter:  ratelimit.New(cfg.RoomCreatePerHour, cfg.RoomCreateBurst),
+			StaticDir:      cfg.StaticDir,
+		}, log).Routes(),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
+
+	expirer := &store.Expirer{
+		Deleter:  st,
+		TTL:      cfg.RoomTTL,
+		Interval: cfg.ExpiryInterval,
+		Active:   hubs.ActiveRooms,
+		Log:      log,
+	}
+	expiryCtx, stopExpiry := context.WithCancel(context.Background())
+	defer stopExpiry()
+	expiryDone := make(chan struct{})
+	go func() {
+		defer close(expiryDone)
+		expirer.Run(expiryCtx)
+	}()
 
 	serveErr := make(chan error, 1)
 	go func() {
@@ -85,6 +114,8 @@ func run() error {
 		log.Error("http shutdown", "err", err)
 	}
 	hubs.Close()
+	stopExpiry()
+	<-expiryDone
 	if err := batcher.Close(shutdownCtx); err != nil {
 		return fmt.Errorf("final flush: %w", err)
 	}

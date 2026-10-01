@@ -1,0 +1,11 @@
+# Context is the repo root; send only what the app image needs.
+*
+!server/
+!web/
+server/**/*_test.go
+web/node_modules
+web/build
+web/.svelte-kit
+web/.vscode
+web/Dockerfile
+web/.dockerignore

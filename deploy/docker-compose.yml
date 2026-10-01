@@ -30,12 +30,39 @@ services:
       FLUSH_INTERVAL: ${FLUSH_INTERVAL:-500ms}
       FLUSH_MAX_BATCH: ${FLUSH_MAX_BATCH:-50}
       SHUTDOWN_TIMEOUT: ${SHUTDOWN_TIMEOUT:-10s}
+      HISTORY_REFRESH_MIN: ${HISTORY_REFRESH_MIN:-1000}
+      ROOM_TTL: ${ROOM_TTL:-720h}
+      EXPIRY_INTERVAL: ${EXPIRY_INTERVAL:-1h}
+      MAX_PEERS: ${MAX_PEERS:-25}
+      MAX_HISTORY_BYTES: ${MAX_HISTORY_BYTES:-8388608}
+      ROOM_CREATE_BURST: ${ROOM_CREATE_BURST:-10}
+      ROOM_CREATE_PER_HOUR: ${ROOM_CREATE_PER_HOUR:-60}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
       LOG_LEVEL: ${LOG_LEVEL:-info}
     depends_on:
       postgres:
         condition: service_healthy
     # Longer than SHUTDOWN_TIMEOUT so the final flush isn't cut off by SIGKILL.
     stop_grace_period: 15s
+
+  # Merges each room's update log into a Yjs snapshot. It is the only
+  # component that decodes Yjs; the Go relay stays opaque.
+  compactor:
+    build: ../compactor
+    image: pairpad-compactor
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-pairpad}:${POSTGRES_PASSWORD:-pairpad}@postgres:5432/${POSTGRES_DB:-pairpad}?sslmode=disable
+      COMPACT_INTERVAL: ${COMPACT_INTERVAL:-30s}
+      COMPACT_MIN_UPDATES: ${COMPACT_MIN_UPDATES:-500}
+      COMPACT_ROOMS_PER_PASS: ${COMPACT_ROOMS_PER_PASS:-50}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # The server applies migrations; the compactor retries until they exist.
+      server:
+        condition: service_started
 
   caddy:
     build: ../web

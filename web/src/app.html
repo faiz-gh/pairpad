@@ -4,6 +4,21 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<!-- Declared statically so browsers never fall back to /favicon.ico. -->
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
+		<script>
+			// Apply the saved theme before first paint to avoid a light flash.
+			// Mirrors src/lib/theme.svelte.ts (storage key and resolution).
+			try {
+				var mode = localStorage.getItem('pairpad:theme');
+				if (
+					mode === 'dark' ||
+					(mode !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+				) {
+					document.documentElement.classList.add('dark');
+				}
+			} catch (e) {}
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
