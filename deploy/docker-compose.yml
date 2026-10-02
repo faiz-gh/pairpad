@@ -43,16 +43,16 @@ services:
       - traefik.docker.network=dokploy-network
       # Plain HTTP on the public IP and on both MagicDNS names. Traffic over
       # the tailnet is encrypted by WireGuard; public-IP traffic is not.
-      - traefik.http.routers.pairpad.rule=Host(`${PUBLIC_IP:?set PUBLIC_IP}`) || Host(`${TAILNET_NAME:?set TAILNET_NAME}`) || Host(`${TAILNET_FQDN:?set TAILNET_FQDN}`)
+      - traefik.http.routers.pairpad.rule=Host(`${DOMAIN}`) || Host(`${PUBLIC_IP:?set PUBLIC_IP}`) || Host(`${TAILNET_NAME:?set TAILNET_NAME}`) || Host(`${TAILNET_FQDN:?set TAILNET_FQDN}`)
       - traefik.http.routers.pairpad.entrypoints=web
       - traefik.http.routers.pairpad.service=pairpad
       - traefik.http.services.pairpad.loadbalancer.server.port=8080
       # Once you have a domain, uncomment for HTTPS via Dokploy's Let's
       # Encrypt resolver (and point the domain's A record at PUBLIC_IP):
-      # - traefik.http.routers.pairpad-tls.rule=Host(`${DOMAIN}`)
-      # - traefik.http.routers.pairpad-tls.entrypoints=websecure
-      # - traefik.http.routers.pairpad-tls.tls.certresolver=letsencrypt
-      # - traefik.http.routers.pairpad-tls.service=pairpad
+      - traefik.http.routers.pairpad-tls.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.pairpad-tls.entrypoints=websecure
+      - traefik.http.routers.pairpad-tls.tls.certresolver=letsencrypt
+      - traefik.http.routers.pairpad-tls.service=pairpad
 
   compactor:
     build:
