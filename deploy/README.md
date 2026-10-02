@@ -10,7 +10,7 @@
 ```
 
 - **app**: one container running the Go server, which also serves the built web UI
-  (`deploy/dokploy/app.Dockerfile`, build context = repo root).
+  (`deploy/app.Dockerfile`, build context = repo root).
 - **compactor**: merges each room's update log into a snapshot.
 - **Postgres**: a separate Dokploy database service, so app deploys never restart it.
   The app applies the schema migrations itself on startup.
@@ -52,7 +52,7 @@ In Dokploy: **Create service → Database → PostgreSQL** (version 17).
 | Setting | Value |
 | --- | --- |
 | Provider | Git (this repository), branch `master` |
-| Compose path | `deploy/dokploy/docker-compose.yml` |
+| Compose path | `deploy/docker-compose.yml` |
 | Compose type | **Docker Compose** (not Stack: room hubs live in memory, so exactly one app container) |
 | Isolated deployment | **Off**. The services join `dokploy-network` themselves to reach Traefik and Postgres |
 | Domains tab | Leave empty. Routing is in the compose labels |
@@ -67,7 +67,7 @@ TAILNET_FQDN=pairpad-vps.tail1234.ts.net
 ```
 
 Every other setting has a production default. Override any of them here if
-needed; they're all listed in [`../.env.example`](../.env.example), e.g.
+needed; they're all listed in [`.env.production.example`](.env.production.example), e.g.
 `MAX_PEERS`, `ROOM_TTL` or `ROOM_CREATE_PER_HOUR`.
 
 **Deploy**. The first build takes a few minutes on an Ampere instance. Then check:

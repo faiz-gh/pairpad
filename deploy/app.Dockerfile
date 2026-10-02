@@ -2,7 +2,7 @@
 
 # Pairpad app image for Dokploy: the Go server, which also serves the built
 # web app (STATIC_DIR). Build context is the repository root:
-#   docker buildx build -f deploy/dokploy/app.Dockerfile .
+#   docker buildx build -f deploy/app.Dockerfile .
 # Both build stages run on the builder's native platform; only the copied
 # outputs are architecture-specific, so arm64 (Oracle Ampere) needs no
 # emulation.
