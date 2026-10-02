@@ -1,8 +1,8 @@
 # Pairpad
 
-> A faster alternative to Codeshare. Open a link, start typing, code together in real time.
+> A fast, conflict-free collaborative code pad. No signup, no modals. Powered by a Go backend, Svelte 5 frontend, and Yjs CRDTs for real-time synchronization over WebSockets.
 
-No signup. No modal. Just a pad.
+**🚀 Try it live at [pairpad.site](https://pairpad.site)**
 
 ## Why Pairpad?
 
@@ -41,7 +41,7 @@ Accounts, code execution, chat, video/audio, and multi-file projects.
 | Backend | Go |
 | Realtime | WebSockets |
 | Database | PostgreSQL |
-| Reverse Proxy | Traefik via Dokploy (production), Caddy (local all-in-one stack) |
+| Reverse Proxy | Traefik (via Dokploy) |
 | Orchestration | Docker Compose, deployed with Dokploy |
 | Hosting | Oracle Cloud (Ampere A1, ARM64), Tailscale for private access |
 
@@ -50,7 +50,7 @@ Accounts, code execution, chat, video/audio, and multi-file projects.
 ```
 Browser (Svelte 5 SPA + CodeMirror 6 + Yjs)
    │  HTTP(S) / WS(S)
-Traefik (Dokploy): routes the public IP and tailnet hostnames
+Traefik (Dokploy): routes the public IP and custom domains
    │
 Go server
    ├─ Web app: the built SPA (precompressed, SPA fallback)
@@ -100,74 +100,55 @@ pairpad/
 │       ├── api/         # REST handlers
 │       ├── hub/         # WebSocket room hubs
 │       └── store/       # PostgreSQL access
-├── deploy/              # local all-in-one stack: docker-compose.yml, Caddyfile, .env.example
-│   └── dokploy/         # production: compose (app + compactor), app.Dockerfile, setup guide
+├── deploy/              # Dokploy deployment configuration (docker-compose.yml, Dockerfile, env)
 ├── docs/                # Architecture and protocol docs
-├── compactor/           # Node service that compacts update logs into Yjs snapshots
-└── .github/workflows/   # CI: lint, test, build & push images
+└── compactor/           # Node service that compacts update logs into Yjs snapshots
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Docker & Docker Compose
-- Go 1.22+ (for local backend development)
-- Node.js 20+ and pnpm (for local frontend development)
-
-### Run with Docker Compose
-
-```bash
-git clone https://github.com/faiz-gh/pairpad.git
-cd pairpad/deploy
-cp .env.example .env
-docker compose up -d
-```
-
-Then open http://localhost.
+- Go 1.22+ (for backend)
+- Node.js 20+ and pnpm (for frontend)
+- PostgreSQL (running locally)
 
 ### Local Development
 
-```bash
-# Backend
-cd server
-go run ./cmd/server
+1. **Database:** Ensure you have a local PostgreSQL instance running. 
 
-# Frontend
+2. **Backend:**
+```bash
+cd server
+DATABASE_URL=postgres://user:pass@localhost:5432/pairpad?sslmode=disable go run ./cmd/server
+```
+
+3. **Frontend:**
+```bash
 cd web
 pnpm install
 pnpm dev
+```
+The Vite dev server will proxy `/api` and `/ws` to the Go backend running on `localhost:8080`.
 
-# Compactor (optional locally; merges update logs into snapshots)
+4. **Compactor (optional locally):** Merges update logs into snapshots.
+```bash
 cd compactor
 pnpm install
-DATABASE_URL=postgres://pairpad:change-me@localhost:5432/pairpad pnpm start
+DATABASE_URL=postgres://user:pass@localhost:5432/pairpad pnpm start
 ```
 
-The backend reads its config from environment variables. See [`deploy/.env.example`](deploy/.env.example). `docker compose` exposes Postgres on `127.0.0.1:5432` for local `go run`, and the Vite dev server proxies `/api` and `/ws` to `localhost:8080`.
+For a list of all backend configuration variables, see [`deploy/.env.example`](deploy/.env.example).
 
-## Deployment (Dokploy on Oracle Cloud)
+## Deployment
 
-Pairpad targets an Oracle Cloud Always Free Ampere A1 (ARM64) instance running [Dokploy](https://dokploy.com), with Tailscale for private access:
+Pairpad is designed to be deployed using [Dokploy](https://dokploy.com) (e.g. on an Oracle Cloud Always Free Ampere A1 instance). 
 
-- **Postgres** is a separate Dokploy database service, so app deploys never restart it.
-- **[`deploy/dokploy/docker-compose.yml`](deploy/dokploy/docker-compose.yml)** runs the app (Go server + web UI in one image) and the compactor.
-- **Dokploy's Traefik** serves the app on the public IP and on the server's MagicDNS names.
+- **PostgreSQL** is managed as a separate Dokploy database service so app deploys never restart it.
+- **[`deploy/docker-compose.yml`](deploy/docker-compose.yml)** defines the app (Go server + web UI in one container) and the compactor service.
+- **Dokploy's Traefik** handles routing and automatically provisions Let's Encrypt certificates for your domains.
 
-Step-by-step setup: **[`deploy/dokploy/README.md`](deploy/dokploy/README.md)**.
-
-CI publishes multi-arch images (`linux/amd64` + `linux/arm64`) to GHCR on every push to `master`: `ghcr.io/faiz-gh/pairpad-app` and `-compactor` for Dokploy, plus `-server` and `-web` for the local stack.
-
-## Continuous Integration
-
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every push and pull request:
-
-| Job | Checks |
-|-----|--------|
-| Server (Go) | `gofmt`, `go vet`, `go test -race` including Postgres integration tests, build |
-| Web (SvelteKit) | `pnpm check`, `lint`, `test`, `build`, and the **bundle budget** (initial JS < 200 KB gzipped) |
-| Compactor (Node) | `tsc`, tests including Postgres integration tests |
-| Images | Multi-arch builds of `app`, `compactor`, `server` and `web` once the jobs above pass; pushed to GHCR only from `master` |
+For a step-by-step production setup guide, see: **[`deploy/README.md`](deploy/README.md)**.
 
 ## Limits & Abuse Prevention
 
@@ -177,7 +158,7 @@ CI publishes multi-arch images (`linux/amd64` + `linux/arm64`) to GHCR on every 
 - WebSocket origin validation and message size caps (1 MiB frames)
 - Inactive rooms are automatically deleted (after 30 days without edits or visits)
 
-All limits are configurable; see [`deploy/.env.example`](deploy/.env.example) and [`docs/architecture.md`](docs/architecture.md#limits).
+All limits are configurable via environment variables. See [`deploy/.env.production.example`](deploy/.env.production.example) and [`docs/architecture.md`](docs/architecture.md#limits).
 
 ## Roadmap
 
@@ -188,4 +169,6 @@ All limits are configurable; see [`deploy/.env.example`](deploy/.env.example) an
 
 ## Contributing
 
-Contributions are welcome! Please open an issue to discuss major changes before submitting a pull request.
+Contributions are highly welcome! Whether it's a bug fix, new feature, or documentation improvement, we'd love your help.
+
+If you have a major change in mind, please open an issue to discuss it before submitting a pull request. Feel free to jump in and submit a PR if you spot something that needs fixing!
